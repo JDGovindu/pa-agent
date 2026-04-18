@@ -7,35 +7,35 @@ st.set_page_config(page_title="PA Agent", page_icon="🏥", layout="wide", initi
 
 st.markdown("""
 <style>
-  [data-testid="stAppViewContainer"] { background: #f7f7f5; }
+  [data-testid="stAppViewContainer"] { background:#f7f7f5; }
   .fetch-bar { background:#f0fbf7;border:1px solid #9FE1CB;border-radius:8px;padding:7px 14px;font-size:12px;color:#085041;margin-bottom:14px; }
-  .badge { display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600; }
+  .badge { display:inline-block;font-size:10px;padding:2px 9px;border-radius:20px;font-weight:600; }
   .badge-blocked { background:#FCEBEB;color:#791F1F; }
   .badge-needs_review { background:#FAEEDA;color:#633806; }
   .badge-ready_to_submit { background:#E1F5EE;color:#085041; }
-  .badge-submitted { background:#F1EFE8;color:#444441; }
+  .badge-submitted { background:#F1EFE8;color:#444; }
   .badge-dismissed { background:#F1EFE8;color:#888; }
-  .case-card { background:white;border:1px solid #e8e8e4;border-radius:10px;padding:12px 16px;margin-bottom:8px;border-left-width:4px; }
+  .case-card { background:white;border:1px solid #e8e8e4;border-radius:10px;padding:13px 16px;margin-bottom:7px;border-left-width:4px; }
   .case-card-blocked { border-left-color:#E24B4A; }
   .case-card-needs_review { border-left-color:#EF9F27; }
   .case-card-ready_to_submit { border-left-color:#1D9E75; }
-  .case-card-submitted,.case-card-dismissed { border-left-color:#ccc; }
-  .reason-tag { font-size:11px;padding:4px 10px;border-radius:6px;margin-top:6px;display:inline-block;line-height:1.4; }
+  .case-card-submitted,.case-card-dismissed { border-left-color:#ddd; }
+  .reason-tag { font-size:11px;padding:3px 9px;border-radius:6px;margin-top:6px;display:inline-block;line-height:1.5; }
   .rt-doc { background:#FCEBEB;color:#791F1F;border:1px solid #F09595; }
   .rt-clin { background:#FAEEDA;color:#633806;border:1px solid #FAC775; }
   .rt-review { background:#FAEEDA;color:#633806;border:1px solid #FAC775; }
   .detail-card { background:white;border:1px solid #e8e8e4;border-radius:10px;padding:14px 16px;margin-bottom:10px; }
-  .dct { font-size:12px;font-weight:600;color:#333;margin-bottom:10px; }
+  .dct { font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px; }
   .sig-tag { font-size:10px;padding:1px 7px;border-radius:20px;font-weight:600; }
   .st-doc { background:#EEEDFE;color:#3C3489; }
   .st-clin { background:#E6F1FB;color:#0C447C; }
-  .block-banner { background:#FCEBEB;border:1px solid #F09595;border-radius:8px;padding:10px 14px;font-size:12px;color:#791F1F;margin-bottom:10px;line-height:1.6; }
-  .warn-banner { background:#FAEEDA;border:1px solid #FAC775;border-radius:8px;padding:10px 14px;font-size:12px;color:#633806;margin-bottom:10px;line-height:1.6; }
-  .ready-banner { background:#E1F5EE;border:1px solid #9FE1CB;border-radius:8px;padding:10px 14px;font-size:12px;color:#085041;margin-bottom:10px;line-height:1.6; }
-  .sub-banner { background:#F1EFE8;border:1px solid #ccc;border-radius:8px;padding:10px 14px;font-size:12px;color:#444;margin-bottom:10px;line-height:1.6; }
-  .hist-item { font-size:11px;color:#888;padding:4px 0;border-bottom:1px solid #f5f5f3; }
+  .block-banner { background:#FCEBEB;border:1px solid #F09595;border-radius:8px;padding:11px 14px;font-size:12px;color:#791F1F;margin-bottom:0;line-height:1.6; }
+  .warn-banner { background:#FAEEDA;border:1px solid #FAC775;border-radius:8px;padding:11px 14px;font-size:12px;color:#633806;margin-bottom:0;line-height:1.6; }
+  .ready-banner { background:#E1F5EE;border:1px solid #9FE1CB;border-radius:8px;padding:11px 14px;font-size:12px;color:#085041;margin-bottom:0;line-height:1.6; }
+  .sub-banner { background:#F1EFE8;border:1px solid #ccc;border-radius:8px;padding:11px 14px;font-size:12px;color:#444;margin-bottom:0;line-height:1.6; }
+  .action-zone { background:white;border:1px solid #e8e8e4;border-radius:10px;padding:14px 16px;margin-bottom:12px; }
+  .hist-item { font-size:11px;color:#888;padding:5px 0;border-bottom:1px solid #f5f5f3; }
   .hist-item:last-child { border-bottom:none; }
-  .step-num { width:20px;height:20px;border-radius:50%;background:#1D9E75;color:white;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -277,15 +277,21 @@ def next_result(case_id):
     ns = min(c.get("stage",0)+1, len(stages)-1)
     return stages[ns], ns
 
+def open_case(cid):
+    st.session_state.selected_case_id = cid
+    st.session_state.screen = "detail"
+    st.rerun()
+
 # ── Nav ────────────────────────────────────────────────────────────────────────
 def nav():
-    c1,c2,c3 = st.columns([2,4,2])
+    c1,c2,c3 = st.columns([2,5,2])
     with c1:
-        st.markdown('<div style="font-size:16px;font-weight:700;color:#111;padding-top:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#1D9E75;margin-right:8px"></span>PA Agent</div>',unsafe_allow_html=True)
+        st.markdown('''<div style="font-size:15px;font-weight:700;color:#111;padding-top:8px">
+          <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#1D9E75;margin-right:7px;margin-bottom:1px"></span>PA Agent
+        </div>''',unsafe_allow_html=True)
     with c2:
         n1,n2,n3 = st.columns(3)
-        screens = [("Cases","listing"),("New case","new_case"),("Policy docs","policy")]
-        for col,(label,scr) in zip([n1,n2,n3],screens):
+        for col,(label,scr) in zip([n1,n2,n3],[("Cases","listing"),("New case","new_case"),("Policy docs","policy")]):
             with col:
                 cur = st.session_state.screen in (["listing","detail"] if scr=="listing" else [scr])
                 if st.button(label,use_container_width=True,type="primary" if cur else "secondary",key=f"nav_{scr}"):
@@ -293,65 +299,62 @@ def nav():
                     if scr != "detail": st.session_state.selected_case_id = None
                     st.rerun()
     with c3:
-        st.markdown('<div style="font-size:11px;color:#1D9E75;text-align:right;padding-top:10px">Demo mode · No API required</div>',unsafe_allow_html=True)
+        st.markdown('<div style="font-size:11px;color:#1D9E75;text-align:right;padding-top:10px">Demo mode · No API needed</div>',unsafe_allow_html=True)
 
 # ── Listing ────────────────────────────────────────────────────────────────────
 def listing():
     cases = st.session_state.cases
-    st.markdown(f'<div class="fetch-bar">↻ &nbsp;Last EHR fetch: {fmt(st.session_state.last_fetch)} &nbsp;·&nbsp; {len(cases)} cases loaded</div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="fetch-bar">↻ &nbsp;Last EHR fetch: {fmt(st.session_state.last_fetch)} &nbsp;·&nbsp; {len(cases)} cases in queue</div>',unsafe_allow_html=True)
     bl=[c for c in cases.values() if c.get("state")=="blocked"]
     rv=[c for c in cases.values() if c.get("state")=="needs_review"]
     rd=[c for c in cases.values() if c.get("state")=="ready_to_submit"]
     sb=[c for c in cases.values() if c.get("state") in ["submitted","dismissed"]]
-    st.markdown("#### Case queue")
-    st.markdown('<p style="font-size:12px;color:#888;margin-top:-8px;margin-bottom:16px">Agent evaluated on arrival · sorted by urgency · click to act</p>',unsafe_allow_html=True)
+    st.markdown('<p style="font-size:13px;font-weight:600;color:#111;margin-bottom:4px">Case queue</p>',unsafe_allow_html=True)
+    st.markdown('<p style="font-size:11px;color:#888;margin-bottom:14px">Evaluated by agent on arrival · sorted by urgency · click any case to act</p>',unsafe_allow_html=True)
     c1,c2,c3,c4 = st.columns(4)
-    for col,key,count,color,label in [(c1,"blocked",len(bl),"#E24B4A","Blocked"),(c2,"needs_review",len(rv),"#EF9F27","Needs review"),(c3,"ready_to_submit",len(rd),"#1D9E75","Ready to submit"),(c4,"closed",len(sb),"#888","Closed")]:
+    for col,key,count,label in [(c1,"blocked",len(bl),"Blocked"),(c2,"needs_review",len(rv),"Needs review"),(c3,"ready_to_submit",len(rd),"Ready to submit"),(c4,"closed",len(sb),"Closed")]:
         with col:
             active = st.session_state.filter==key
             if st.button(f"{count}  \n{label}",key=f"f_{key}",use_container_width=True,type="primary" if active else "secondary"):
                 st.session_state.filter = "all" if active else key
                 st.rerun()
-    st.markdown("<div style='margin-top:14px'></div>",unsafe_allow_html=True)
+    st.markdown("<div style='margin-top:16px'></div>",unsafe_allow_html=True)
     f = st.session_state.filter
-    def grp(group, title, state_key):
+    def grp(group,title,skey):
         if not group: return
-        if f not in ["all",state_key,"closed"]: return
-        if f=="closed" and state_key not in ["submitted","dismissed"]: return
-        st.markdown(f'<div style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin:12px 0 6px">{title} — {len(group)} cases</div>',unsafe_allow_html=True)
+        if f not in ["all",skey,"closed"]: return
+        if f=="closed" and skey not in ["submitted","dismissed"]: return
+        st.markdown(f'<div style="font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:0.05em;margin:10px 0 6px">{title} — {len(group)}</div>',unsafe_allow_html=True)
         for c in group: case_row(c)
     grp(bl,"Blocked","blocked"); grp(rv,"Needs review","needs_review"); grp(rd,"Ready to submit","ready_to_submit")
     if f in ["all","closed"] and sb:
-        st.markdown('<div style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin:12px 0 6px">Closed</div>',unsafe_allow_html=True)
+        st.markdown('<div style="font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:0.05em;margin:10px 0 6px">Closed</div>',unsafe_allow_html=True)
         for c in sb: case_row(c)
     if not cases:
         st.info("No cases loaded. Go to **New case** to load cases from the EHR.")
 
 def case_row(case):
-    r = case.get("result",{})
-    state = case.get("state","")
-    score = r.get("confidence_score","—")
-    sc = scol(score) if isinstance(score,int) else "#888"
-    evals = case.get("eval_history",[])
-    last = f"Evaluated {fmt(evals[-1]['time'])}" if evals else ""
-    bt = r.get("block_type"); rs = r.get("block_reason_short",""); sr = r.get("state_reason","")
+    r = case.get("result",{}); state = case.get("state","")
+    score = r.get("confidence_score","—"); sc = scol(score) if isinstance(score,int) else "#888"
+    evals = case.get("eval_history",[]); last = f"Last evaluated {fmt(evals[-1]['time'])}" if evals else ""
+    bt = r.get("block_type",""); rs = r.get("block_reason_short",""); sr = r.get("state_reason","")
     if state=="blocked" and bt=="document_missing": rh=f'<div class="reason-tag rt-doc">📄 Document missing — {rs}</div>'
     elif state=="blocked" and bt=="weak_clinical": rh=f'<div class="reason-tag rt-clin">⚠ Weak clinical evidence — {rs}</div>'
-    elif state=="blocked" and bt=="both": rh=f'<div class="reason-tag rt-doc">📄 Document + clinical gaps — {rs}</div>'
-    elif state=="needs_review": short=sr[:90]+("..." if len(sr)>90 else ""); rh=f'<div class="reason-tag rt-review">↻ {short}</div>'
+    elif state=="blocked": rh=f'<div class="reason-tag rt-doc">📄 Document + clinical gaps — {rs}</div>'
+    elif state=="needs_review": short=sr[:85]+("..." if len(sr)>85 else ""); rh=f'<div class="reason-tag rt-review">↻ {short}</div>'
     else: rh=""
     st.markdown(f"""<div class="case-card case-card-{state}">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:3px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
         <div style="flex:1;font-size:13px;font-weight:600;color:#111">{case['name']} &nbsp;·&nbsp; {case['age_gender']}</div>
         <span class="badge badge-{state}">{slabel(state)}</span>
-        <div style="font-size:16px;font-weight:700;color:{sc};min-width:28px;text-align:right">{score}</div>
+        <div style="font-size:17px;font-weight:700;color:{sc};min-width:32px;text-align:right">{score}</div>
       </div>
-      <div style="font-size:11px;color:#888;margin-bottom:2px">{case['diagnosis']} &nbsp;·&nbsp; {case['payer']}</div>
-      <div style="font-size:10px;color:#bbb">{last}</div>{rh}</div>""",unsafe_allow_html=True)
-    if st.button("Open →",key=f"o_{case['id']}"):
-        st.session_state.selected_case_id = case["id"]
-        st.session_state.screen = "detail"
-        st.rerun()
+      <div style="font-size:11px;color:#888;margin-bottom:3px">{case['diagnosis'][:55]}{"..." if len(case['diagnosis'])>55 else ""} &nbsp;·&nbsp; {case['payer']}</div>
+      <div style="font-size:10px;color:#bbb;margin-bottom:2px">{last}</div>
+      {rh}
+    </div>""",unsafe_allow_html=True)
+    if st.button(f"View case →",key=f"o_{case['id']}",use_container_width=False):
+        open_case(case["id"])
 
 # ── Detail ─────────────────────────────────────────────────────────────────────
 def detail():
@@ -359,114 +362,167 @@ def detail():
     case = st.session_state.cases.get(cid)
     if not case: st.error("Case not found."); return
     r = case.get("result",{}); state = case.get("state",""); score = r.get("confidence_score",0)
+
+    # Back link
     if st.button("← Back to cases"):
         st.session_state.screen="listing"; st.session_state.selected_case_id=None; st.rerun()
-    st.markdown("<div style='margin-top:10px'></div>",unsafe_allow_html=True)
+    st.markdown("<div style='margin-top:8px'></div>",unsafe_allow_html=True)
+
+    # Header row
     ch,cs = st.columns([3,1])
     with ch:
-        st.markdown(f'<div style="font-size:20px;font-weight:700;color:#111;margin-bottom:4px">{case["name"]} &nbsp;·&nbsp; {case["age_gender"]} &nbsp;<span class="badge badge-{state}" style="font-size:11px;vertical-align:middle">{slabel(state)}</span></div><div style="font-size:12px;color:#888;margin-bottom:2px">{case["diagnosis"]} &nbsp;·&nbsp; {case["treatment"]}</div><div style="font-size:11px;color:#aaa">{case["physician"]} &nbsp;·&nbsp; {case["payer"]}</div>',unsafe_allow_html=True)
+        st.markdown(f"""<div style="margin-bottom:2px">
+          <span style="font-size:18px;font-weight:700;color:#111">{case['name']} &nbsp;·&nbsp; {case['age_gender']}</span>
+          &nbsp;&nbsp;<span class="badge badge-{state}">{slabel(state)}</span>
+        </div>
+        <div style="font-size:12px;color:#888;margin-bottom:2px">{case['diagnosis']} &nbsp;·&nbsp; {case['treatment']}</div>
+        <div style="font-size:11px;color:#bbb">{case['physician']} &nbsp;·&nbsp; {case['payer']}</div>""",unsafe_allow_html=True)
     with cs:
         c=scol(score)
-        st.markdown(f'<div style="text-align:right"><div style="font-size:38px;font-weight:700;color:{c};line-height:1">{score}<span style="font-size:16px;color:#ccc">/100</span></div><div style="font-size:11px;color:#888;margin-top:3px">Confidence score</div><div style="font-size:10px;color:#bbb">Clinical + document</div></div>',unsafe_allow_html=True)
+        st.markdown(f'''<div style="text-align:right;padding-top:4px">
+          <div style="font-size:36px;font-weight:700;color:{c};line-height:1.1">{score}<span style="font-size:14px;color:#ccc;font-weight:400">/100</span></div>
+          <div style="font-size:10px;color:#aaa;margin-top:2px">Confidence · clinical + document</div>
+        </div>''',unsafe_allow_html=True)
+
     st.markdown("<div style='margin-top:12px'></div>",unsafe_allow_html=True)
+
+    # ── ACTION ZONE — always at top ─────────────────────────────────────────────
     sr = r.get("state_reason","")
-    banners = {"blocked":f'<div class="block-banner">🚫 <strong>Blocked</strong> — {sr}</div>',"needs_review":f'<div class="warn-banner">⚠ <strong>Needs review</strong> — {sr}</div>',"ready_to_submit":f'<div class="ready-banner">✓ <strong>Ready to submit</strong> — {sr}</div>',"submitted":f'<div class="sub-banner">📤 <strong>Submitted to payer</strong> — Case closed.{(" Override reason: "+case.get("override_reason","")) if case.get("override_reason") else ""}</div>',"dismissed":'<div class="sub-banner">✕ <strong>Dismissed</strong> — Case closed without submission.</div>'}
-    if state in banners: st.markdown(banners[state],unsafe_allow_html=True)
+    if state not in ["submitted","dismissed"]:
+        st.markdown('<div class="action-zone">',unsafe_allow_html=True)
+        st.markdown('<div style="font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px">Coordinator action</div>',unsafe_allow_html=True)
+        bannermap = {
+            "blocked": f'<div class="block-banner" style="margin-bottom:12px">🚫 <strong>Blocked</strong> — {sr}</div>',
+            "needs_review": f'<div class="warn-banner" style="margin-bottom:12px">⚠ <strong>Needs review</strong> — {sr}</div>',
+            "ready_to_submit": f'<div class="ready-banner" style="margin-bottom:12px">✓ <strong>Ready to submit</strong> — {sr}</div>'
+        }
+        if state in bannermap: st.markdown(bannermap[state],unsafe_allow_html=True)
+
+        def do_reeval():
+            nr,ns = next_result(cid)
+            case["result"]=nr; case["state"]=nr["state"]; case["stage"]=ns
+            case["eval_history"].append({"time":datetime.now(),"score":nr["confidence_score"],"state":nr["state"]})
+            st.rerun()
+        def do_dismiss():
+            case["state"]="dismissed"
+            case["eval_history"].append({"time":datetime.now(),"score":score,"state":"dismissed"})
+            st.rerun()
+
+        if state=="blocked":
+            ca,cb = st.columns([2,1])
+            with ca:
+                if st.button("Re-evaluate case",use_container_width=True,type="primary",key=f"re_{cid}"):
+                    with st.spinner("Agent re-evaluating..."): time.sleep(1)
+                    do_reeval()
+            with cb:
+                if st.button("Dismiss",use_container_width=True,key=f"di_{cid}"): do_dismiss()
+            st.markdown('<div style="font-size:11px;color:#bbb;margin-top:6px">Submit not available while Blocked — resolve gaps and re-evaluate.</div>',unsafe_allow_html=True)
+
+        elif state=="needs_review":
+            ca,cb,cc = st.columns(3)
+            with ca:
+                if st.button("Re-evaluate case",use_container_width=True,type="secondary",key=f"re_{cid}"):
+                    with st.spinner("Agent re-evaluating..."): time.sleep(1)
+                    do_reeval()
+            with cb:
+                if st.button("Submit — log reason",use_container_width=True,type="primary",key=f"su_{cid}"):
+                    st.session_state[f"sr_{cid}"] = True
+            with cc:
+                if st.button("Dismiss",use_container_width=True,key=f"di_{cid}"): do_dismiss()
+            if st.session_state.get(f"sr_{cid}"):
+                st.markdown("<div style='margin-top:10px'></div>",unsafe_allow_html=True)
+                reason = st.text_area("Why are you submitting despite the review flag? (required)",
+                    placeholder="e.g. ESI confirmed verbally with physician — documentation pending sync.",
+                    key=f"rt_{cid}",label_visibility="visible")
+                if st.button("Confirm and submit",type="primary",key=f"cf_{cid}"):
+                    if not reason.strip(): st.error("Please enter a reason before submitting.")
+                    else:
+                        case["override_reason"]=reason; case["state"]="submitted"
+                        case["eval_history"].append({"time":datetime.now(),"score":score,"state":"submitted"})
+                        del st.session_state[f"sr_{cid}"]
+                        st.rerun()
+
+        elif state=="ready_to_submit":
+            ca,cb = st.columns([3,1])
+            with ca:
+                if st.button("Confirm and submit to payer",use_container_width=True,type="primary",key=f"su_{cid}"):
+                    case["state"]="submitted"
+                    case["eval_history"].append({"time":datetime.now(),"score":score,"state":"submitted"})
+                    st.rerun()
+            with cb:
+                if st.button("Dismiss",use_container_width=True,key=f"di_{cid}"): do_dismiss()
+        st.markdown("</div>",unsafe_allow_html=True)
+    else:
+        bmap = {"submitted":f'<div class="sub-banner">📤 <strong>Submitted to payer</strong> — Case closed.{(" Override logged: "+case.get("override_reason","")) if case.get("override_reason") else ""}</div>',"dismissed":'<div class="sub-banner">✕ <strong>Dismissed</strong> — Closed without submission.</div>'}
+        if state in bmap: st.markdown(bmap[state],unsafe_allow_html=True)
+
+    # ── WHAT TO DO NEXT — second priority ──────────────────────────────────────
+    todo = r.get("what_to_do",[])
+    if todo and state not in ["submitted","dismissed","ready_to_submit"]:
+        st.markdown('<div class="detail-card">',unsafe_allow_html=True)
+        st.markdown('<div class="dct">What to do next</div>',unsafe_allow_html=True)
+        for s in todo:
+            st.markdown(f'''<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f3">
+              <div style="width:22px;height:22px;border-radius:50%;background:#1D9E75;color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">{s["step"]}</div>
+              <div><div style="font-size:11px;font-weight:600;color:#666;margin-bottom:2px">{s["who"]}</div>
+              <div style="font-size:12px;color:#444;line-height:1.6">{s["action"]}</div></div>
+            </div>''',unsafe_allow_html=True)
+        st.markdown("</div>",unsafe_allow_html=True)
+
+    # ── CRITERIA + DOCUMENTS side by side ──────────────────────────────────────
     cl,cr = st.columns(2)
     with cl:
-        st.markdown('<div class="detail-card"><div class="dct">Criteria check</div>',unsafe_allow_html=True)
+        st.markdown('<div class="detail-card">',unsafe_allow_html=True)
+        st.markdown('<div class="dct">Criteria check</div>',unsafe_allow_html=True)
         for c in r.get("criteria",[]):
             ic = "✓" if c["status"]=="met" else ("✗" if c["status"]=="not_met" else "!")
             col = "#1D9E75" if c["status"]=="met" else ("#E24B4A" if c["status"]=="not_met" else "#EF9F27")
             tc = "st-clin" if c["signal_type"]=="clinical" else "st-doc"
             tl = "Clinical" if c["signal_type"]=="clinical" else "Document"
-            ah = f'<div style="font-size:11px;color:#999;margin-top:3px">→ {c["action"]}</div>' if c.get("action") and c["status"]!="met" else ""
-            st.markdown(f'<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f5f5f3;font-size:12px"><div style="color:{col};font-weight:700;width:14px;flex-shrink:0;margin-top:1px">{ic}</div><div style="flex:1"><div style="font-weight:600;color:#222;margin-bottom:2px">{c["name"]}</div><div style="color:#666;line-height:1.5">{c["detail"]}</div>{ah}</div><span class="sig-tag {tc}">{tl}</span></div>',unsafe_allow_html=True)
-        st.markdown("</div>",unsafe_allow_html=True)
-        st.markdown('<div class="detail-card"><div class="dct">ICD-10 &amp; CPT codes</div>',unsafe_allow_html=True)
-        for code in r.get("icd10_codes",[]): st.markdown(f'<span class="sig-tag st-clin" style="margin:2px 4px 2px 0;display:inline-block">{code}</span>',unsafe_allow_html=True)
-        for code in r.get("cpt_codes",[]): st.markdown(f'<span class="sig-tag st-doc" style="margin:2px 4px 2px 0;display:inline-block">{code}</span>',unsafe_allow_html=True)
+            ah = f'<div style="font-size:11px;color:#E24B4A;margin-top:3px;line-height:1.5">→ {c["action"]}</div>' if c.get("action") and c["status"]!="met" else ""
+            st.markdown(f'''<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f5f5f3">
+              <div style="color:{col};font-weight:700;font-size:13px;width:15px;flex-shrink:0;margin-top:1px">{ic}</div>
+              <div style="flex:1">
+                <div style="font-size:12px;font-weight:600;color:#222;margin-bottom:1px">{c["name"]}</div>
+                <div style="font-size:11px;color:#666;line-height:1.5">{c["detail"]}</div>{ah}
+              </div>
+              <span class="sig-tag {tc}" style="flex-shrink:0;margin-top:2px">{tl}</span>
+            </div>''',unsafe_allow_html=True)
         st.markdown("</div>",unsafe_allow_html=True)
     with cr:
         docs = r.get("docs",{})
-        st.markdown('<div class="detail-card"><div class="dct">Document audit — fetched from EHR</div>',unsafe_allow_html=True)
+        st.markdown('<div class="detail-card">',unsafe_allow_html=True)
+        st.markdown('<div class="dct">Document audit — from EHR</div>',unsafe_allow_html=True)
         for dn,di in docs.items():
             if di["status"]=="valid": ic,bg,tc="✓","#E1F5EE","#085041"
             elif di["status"]=="stale": ic,bg,tc="!","#FAEEDA","#633806"
             else: ic,bg,tc="✗","#FCEBEB","#791F1F"
-            st.markdown(f'<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f3"><div style="width:24px;height:24px;border-radius:6px;background:{bg};display:flex;align-items:center;justify-content:center;font-weight:700;color:{tc};flex-shrink:0;font-size:13px">{ic}</div><div style="flex:1"><div style="font-size:12px;font-weight:600;color:#222;margin-bottom:2px">{dn}</div><div style="font-size:11px;color:#888;line-height:1.5">{di["detail"]}</div></div></div>',unsafe_allow_html=True)
+            st.markdown(f'''<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f3">
+              <div style="width:24px;height:24px;border-radius:6px;background:{bg};display:flex;align-items:center;justify-content:center;font-weight:700;color:{tc};flex-shrink:0;font-size:12px">{ic}</div>
+              <div><div style="font-size:12px;font-weight:600;color:#222;margin-bottom:2px">{dn}</div>
+              <div style="font-size:11px;color:#888;line-height:1.5">{di["detail"]}</div></div>
+            </div>''',unsafe_allow_html=True)
         st.markdown("</div>",unsafe_allow_html=True)
-        if r.get("what_to_do") and state not in ["submitted","dismissed","ready_to_submit"]:
-            st.markdown('<div class="detail-card"><div class="dct">What to do next</div>',unsafe_allow_html=True)
-            for s in r["what_to_do"]:
-                st.markdown(f'<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px"><div class="step-num">{s["step"]}</div><div><div style="font-size:11px;font-weight:600;color:#555;margin-bottom:2px">{s["who"]}</div><div style="font-size:12px;color:#666;line-height:1.6">{s["action"]}</div></div></div>',unsafe_allow_html=True)
-            st.markdown("</div>",unsafe_allow_html=True)
-        evs = case.get("eval_history",[])
-        if evs:
-            st.markdown('<div class="detail-card"><div class="dct">Evaluation history</div>',unsafe_allow_html=True)
-            icons={"blocked":"🔴","needs_review":"🟡","ready_to_submit":"🟢","submitted":"📤","dismissed":"⚫"}
-            for ev in reversed(evs[-5:]):
-                st.markdown(f'<div class="hist-item">{icons.get(ev["state"],"⚪")} {slabel(ev["state"])} &nbsp;·&nbsp; score {ev["score"]} &nbsp;·&nbsp; {fmt(ev["time"])}</div>',unsafe_allow_html=True)
-            st.markdown("</div>",unsafe_allow_html=True)
+
+    # ── COLLAPSIBLE — codes + history + PA letter ──────────────────────────────
+    with st.expander("ICD-10 · CPT codes · Evaluation history"):
+        st.markdown('<div style="font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px">Codes</div>',unsafe_allow_html=True)
+        for code in r.get("icd10_codes",[]): st.markdown(f'<span class="sig-tag st-clin" style="margin:2px 4px 2px 0;display:inline-block">{code}</span>',unsafe_allow_html=True)
+        for code in r.get("cpt_codes",[]): st.markdown(f'<span class="sig-tag st-doc" style="margin:2px 4px 2px 0;display:inline-block">{code}</span>',unsafe_allow_html=True)
+        st.markdown("<div style='margin-top:14px'></div>",unsafe_allow_html=True)
+        st.markdown('<div style="font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px">Evaluation history</div>',unsafe_allow_html=True)
+        icons={"blocked":"🔴","needs_review":"🟡","ready_to_submit":"🟢","submitted":"📤","dismissed":"⚫"}
+        for ev in reversed(case.get("eval_history",[])[-5:]):
+            st.markdown(f'<div class="hist-item">{icons.get(ev["state"],"⚪")} &nbsp;{slabel(ev["state"])} &nbsp;·&nbsp; score {ev["score"]} &nbsp;·&nbsp; {fmt(ev["time"])}</div>',unsafe_allow_html=True)
+
     if state in ["needs_review","ready_to_submit"] and r.get("pa_letter"):
         with st.expander("Preview PA letter — drafted by agent"):
             st.text(r["pa_letter"])
-    st.markdown("<div style='margin-top:8px'></div>",unsafe_allow_html=True)
-    st.markdown('<div style="font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">Coordinator action</div>',unsafe_allow_html=True)
-    if state in ["submitted","dismissed"]:
-        st.markdown('<div style="font-size:13px;color:#888">This case is closed. No further action needed.</div>',unsafe_allow_html=True); return
-    def do_reeval():
-        nr,ns = next_result(cid)
-        case["result"]=nr; case["state"]=nr["state"]; case["stage"]=ns
-        case["eval_history"].append({"time":datetime.now(),"score":nr["confidence_score"],"state":nr["state"]})
-        st.rerun()
-    def do_dismiss():
-        case["state"]="dismissed"
-        case["eval_history"].append({"time":datetime.now(),"score":score,"state":"dismissed"})
-        st.rerun()
-    if state=="blocked":
-        ca,cb = st.columns(2)
-        with ca:
-            if st.button("Re-evaluate case",use_container_width=True,type="primary",key=f"re_{cid}"):
-                with st.spinner("Agent re-evaluating..."): time.sleep(1)
-                do_reeval()
-        with cb:
-            if st.button("Dismiss case",use_container_width=True,key=f"di_{cid}"): do_dismiss()
-        st.markdown('<div style="font-size:11px;color:#999;margin-top:8px">Submit is not available while case is Blocked. Resolve gaps and re-evaluate.</div>',unsafe_allow_html=True)
-    elif state=="needs_review":
-        ca,cb,cc = st.columns(3)
-        with ca:
-            if st.button("Re-evaluate case",use_container_width=True,type="secondary",key=f"re_{cid}"):
-                with st.spinner("Agent re-evaluating..."): time.sleep(1)
-                do_reeval()
-        with cb:
-            if st.button("Submit — log reason",use_container_width=True,type="primary",key=f"su_{cid}"):
-                st.session_state[f"sr_{cid}"] = True
-        with cc:
-            if st.button("Dismiss case",use_container_width=True,key=f"di_{cid}"): do_dismiss()
-        if st.session_state.get(f"sr_{cid}"):
-            reason = st.text_area("Why are you submitting despite the review flag? (required)",placeholder="e.g. ESI confirmed verbally with physician — documentation pending sync from external system.",key=f"rt_{cid}")
-            if st.button("Confirm and submit",type="primary",key=f"cf_{cid}"):
-                if not reason.strip(): st.error("Please enter a reason before submitting.")
-                else:
-                    case["override_reason"]=reason; case["state"]="submitted"
-                    case["eval_history"].append({"time":datetime.now(),"score":score,"state":"submitted"})
-                    del st.session_state[f"sr_{cid}"]
-                    st.rerun()
-    elif state=="ready_to_submit":
-        ca,cb = st.columns([2,1])
-        with ca:
-            if st.button("Confirm and submit to payer",use_container_width=True,type="primary",key=f"su_{cid}"):
-                case["state"]="submitted"
-                case["eval_history"].append({"time":datetime.now(),"score":score,"state":"submitted"})
-                st.rerun()
-        with cb:
-            if st.button("Dismiss case",use_container_width=True,key=f"di_{cid}"): do_dismiss()
 
 # ── New case ───────────────────────────────────────────────────────────────────
 def new_case():
-    st.markdown("#### New case — EHR intake")
-    st.markdown('<p style="font-size:12px;color:#888;margin-top:-8px;margin-bottom:16px">In production, cases arrive automatically from the EHR. Select a test case below to simulate EHR intake and instant agent evaluation.</p>',unsafe_allow_html=True)
+    st.markdown('<p style="font-size:13px;font-weight:600;color:#111;margin-bottom:4px">New case — EHR intake</p>',unsafe_allow_html=True)
+    st.markdown('<p style="font-size:11px;color:#888;margin-bottom:16px">In production, cases arrive automatically from the EHR. Select a test case below to simulate EHR intake.</p>',unsafe_allow_html=True)
     loaded = set(st.session_state.cases.keys())
     unloaded = [tc for tc in TEST_CASES if tc["id"] not in loaded]
     if not unloaded:
@@ -475,35 +531,42 @@ def new_case():
             st.session_state.cases={}; st.rerun()
         return
     opts = [f"{tc['id']} — {tc['name']}, {tc['age_gender']} — {tc['diagnosis']}" for tc in unloaded]
-    sel = st.selectbox("Select case from EHR", opts)
+    sel = st.selectbox("Select case from EHR",opts)
     tc = unloaded[opts.index(sel)]
     c1,c2 = st.columns(2)
     with c1:
-        st.markdown(f'<div class="detail-card"><div class="dct">Patient details</div><div style="font-size:12px;color:#555;line-height:2.2"><b>Name:</b> {tc["name"]}<br><b>Age/Gender:</b> {tc["age_gender"]}<br><b>Payer:</b> {tc["payer"]}<br><b>Physician:</b> {tc["physician"]}<br><b>Facility:</b> {tc["facility"]}</div></div>',unsafe_allow_html=True)
+        st.markdown(f'<div class="detail-card"><div class="dct">Patient</div><div style="font-size:12px;color:#444;line-height:2.1"><b>Name:</b> {tc["name"]}<br><b>Age/Gender:</b> {tc["age_gender"]}<br><b>Payer:</b> {tc["payer"]}<br><b>Physician:</b> {tc["physician"]}<br><b>Facility:</b> {tc["facility"]}</div></div>',unsafe_allow_html=True)
     with c2:
-        st.markdown(f'<div class="detail-card"><div class="dct">Procedure</div><div style="font-size:12px;color:#555;line-height:2.2"><b>Diagnosis:</b> {tc["diagnosis"]}<br><b>Treatment:</b> {tc["treatment"]}</div></div>',unsafe_allow_html=True)
+        st.markdown(f'<div class="detail-card"><div class="dct">Procedure</div><div style="font-size:12px;color:#444;line-height:2.1"><b>Diagnosis:</b> {tc["diagnosis"]}<br><b>Treatment:</b> {tc["treatment"]}</div></div>',unsafe_allow_html=True)
     ca,cb = st.columns([2,1])
     with ca:
         if st.button("Send to agent — evaluate this case",type="primary",use_container_width=True):
-            with st.spinner("Agent evaluating case from EHR..."): time.sleep(1.2)
+            with st.spinner("Agent evaluating..."): time.sleep(1.2)
             load_case(tc)
-            r = st.session_state.cases[tc["id"]]["result"]
-            st.success(f"Evaluated — {slabel(r['state'])} · Score {r['confidence_score']}")
+            r2 = st.session_state.cases[tc["id"]]["result"]
+            st.success(f"Done — {slabel(r2['state'])} · Score {r2['confidence_score']}")
+            if st.button("View in queue →"): st.session_state.screen="listing"; st.rerun()
     with cb:
         if st.button("Load all 6 cases",use_container_width=True):
-            with st.spinner("Loading all cases..."): time.sleep(1.5)
+            with st.spinner("Loading..."): time.sleep(1.5)
             for t in TEST_CASES:
                 if t["id"] not in st.session_state.cases: load_case(t)
             st.session_state.screen="listing"; st.rerun()
 
 # ── Policy ─────────────────────────────────────────────────────────────────────
 def policy():
-    st.markdown("#### Policy documents")
-    st.markdown('<p style="font-size:12px;color:#888;margin-top:-8px;margin-bottom:16px">In production, payer policy PDFs are chunked and stored in ChromaDB. The agent retrieves the most relevant sections by semantic search on every evaluation. In demo mode, policies are pre-loaded.</p>',unsafe_allow_html=True)
-    st.markdown('<div class="detail-card"><div class="dct">Loaded — UHC Lumbar Surgery 2024</div><div style="font-size:12px;color:#555;line-height:2"><b>Payer:</b> UnitedHealthcare PPO<br><b>Specialty:</b> Spine — lumbar decompression<br><b>CPT codes:</b> 63047, 63048, 63030<br><b>Key criteria:</b> MRI within 12 months · PT 12+ sessions with documented failure · At least 1 failed ESI · Symptoms 6+ weeks · Board-certified surgeon<br><b>Status:</b> Active · Last updated Jan 2024</div></div>',unsafe_allow_html=True)
-    st.markdown('<div style="font-size:12px;color:#aaa;margin-top:4px">To add real payer policies in production, enable the Claude API and ChromaDB integration.</div>',unsafe_allow_html=True)
+    st.markdown('<p style="font-size:13px;font-weight:600;color:#111;margin-bottom:4px">Policy documents</p>',unsafe_allow_html=True)
+    st.markdown('<p style="font-size:11px;color:#888;margin-bottom:16px">In production, payer policy PDFs are stored in ChromaDB and retrieved by the agent on every evaluation. Demo mode uses pre-loaded criteria.</p>',unsafe_allow_html=True)
+    st.markdown('''<div class="detail-card"><div class="dct">Loaded — UHC Lumbar Surgery 2024</div>
+    <div style="font-size:12px;color:#444;line-height:2">
+      <b>Payer:</b> UnitedHealthcare PPO<br>
+      <b>Specialty:</b> Spine — lumbar decompression<br>
+      <b>CPT codes:</b> 63047, 63048, 63030<br>
+      <b>Key criteria:</b> MRI within 12 months · PT 12+ sessions with documented failure · At least 1 failed ESI · Symptoms 6+ weeks · Board-certified surgeon<br>
+      <b>Status:</b> Active · Last updated Jan 2024
+    </div></div>''',unsafe_allow_html=True)
 
 # ── Router ─────────────────────────────────────────────────────────────────────
 nav()
-st.markdown("<hr style='border:none;border-top:1px solid #e8e8e4;margin:0 0 20px'>",unsafe_allow_html=True)
+st.markdown("<hr style='border:none;border-top:1px solid #e8e8e4;margin:0 0 18px'>",unsafe_allow_html=True)
 {"listing":listing,"detail":detail,"new_case":new_case,"policy":policy}.get(st.session_state.screen, listing)()
